@@ -2,6 +2,8 @@
 
 import os
 import csv
+import sys
+import string
 from datetime import datetime
 from collections import defaultdict
 
@@ -10,10 +12,12 @@ from mandrillEmailSender import sendEmails
 
 def get_file_names():
     ''' Gets the names of required csv files '''
+    #print sys.argv[1], sys.argv[2], sys.argv[3]
+    return sys.argv[1], sys.argv[2], sys.argv[3]
     member_file = raw_input("Enter name of csv file with member details (with .csv): ")
     comm_file = raw_input("Enter name of csv file with member to community details (with .csv): ")
     offer_file = raw_input("Enter name of csv file with offer details (with .csv): ")
-    return member_file, comm_file, offer_file
+    #return member_file, comm_file, offer_file
 
 def is_expired(date):
     ''' Return 1 if the passed datetime object is beyond now '''
@@ -22,19 +26,25 @@ def is_expired(date):
     try:
         expiry = datetime.strptime(date, pat) # 1/6/2014 22:00
     except ValueError:
-        expiry = datetime.strptime(date, '%m/%d/%y %H:%M') # 1/6/2014 22:00
+        return False
+        #expiry = datetime.strptime(date, '%m/%d/%y %H:%M') # 1/6/2014 22:00
     return expiry < now # return 1 if expiry date is before now
 
 def get_member_dict(member_file):
-    ''' Returns the dict containing all member information from members csv
+    ''' Returns the dict containing all member in\ion from members csv
     file'''
     data = defaultdict(lambda: defaultdict(lambda: 'filler')) # {userid: {firstname, email}}
     with open(member_file, 'rb') as f:
         read = csv.reader(f)
         next(read, None) # skip the header
         for row in read:
+            try:
+                optMsg = row[16]
+            except:
+                print 'Opt Error: ' + str(row)
+                continue
             # user id = row[1], f_name = row[4], email = row[3]
-            if row[16] is not 'Opt out of messages':
+            if optMsg is not 'Opt out of messages':
                 if row[4] is not '' and row[3] is not '':
                     user_id = int(row[1])
                     data[user_id]["first"] = row[4]
@@ -62,10 +72,11 @@ def get_ads(offer_file):
         read = csv.reader(f)
         next(read, None) # skip the header
         for row in read:
-            row = unicode(row)
+            #row = unicode(row)
             try:
                 ad_id = int(row[1])
-            except ValueError:
+            except :
+                print 'Error: ' + str(row)
                 continue
             expiry = row[13]
             if not is_expired(expiry):
@@ -76,14 +87,14 @@ def get_ads(offer_file):
                     offers[ad_id]["expiry"] = expiry
                     offers[ad_id]["url"] = row[14]
                     offers[ad_id]["title"] = unicode(row[15])
-                    offers[ad_id]["body"] = unicode(row[16])
+                    offers[ad_id]["body"] = filter(lambda x: x in string.printable, row[16])
                 elif ad_type == 'Request':
                     requests[ad_id]["first"] = unicode(row[6])
                     requests[ad_id]["category"] = row[11]
                     requests[ad_id]["expiry"] = expiry
                     requests[ad_id]["url"] = row[14]
                     requests[ad_id]["title"] = unicode(row[15])
-                    requests[ad_id]["body"] = unicode(row[16])
+                    requests[ad_id]["body"] = filter(lambda x: x in string.printable, row[16])
     return offers, requests
     
 def combine_member_data(member_data, comm_data):
@@ -101,8 +112,8 @@ if __name__ == '__main__':
     offers, requests = get_ads(offer_file)
     full_member_data = combine_member_data(member_data, comm_data)
     
-    fromAddress = 'dasher@tbanks.org' # May be taken as input 
-    subject = 'Offers of the Day'   
+    fromAddress = 'info@tbanks.org' # May be taken as input 
+    subject = 'TimeBank connections'   
     curdir = os.getcwd()
     #rootdir = os.path.join(curdir, '..')
     assetdir = os.path.join(curdir, 'assets')
@@ -116,7 +127,7 @@ if __name__ == '__main__':
     request_ids.sort(reverse=True)
     numOffers = 10 if len(offer_ids) >= 10 else len(offer_ids)
     numRequests = 10 if len(request_ids) >= 10 else len(request_ids)
-    
+    print len(offer_ids), len(request_ids), numOffers, numRequests
     for i in range(numOffers):
         offer = offer_ids[i]
         offerTitle = offers[offer]['title']
@@ -130,9 +141,10 @@ if __name__ == '__main__':
         reqText += reqTitle + '\n'
         reqHtml += '<li> <a href="' + reqUrl + '">' + reqTitle + ' </a></li>'
     
-    emailHtml.replace('{{list_of_new_requests}}', reqHtml)
-    emailText.replace('{{list_of_new_requests}}', reqText)
-    emailHtml.replace('{{list_of_new_offers}}', offerHtml)
-    emailText.replace('{{list_of_new_offers}}', offerText)
-    #sendEmails(subject, fromAddress, emailHtml, emailText, full_member_data)
+    print reqHtml, offerHtml
+    emailHtml = emailHtml.replace('{{list_of_new_requests}}', reqHtml)
+    emailText = emailText.replace('{{list_of_new_requests}}', reqText)
+    emailHtml = emailHtml.replace('{{list_of_new_offers}}', offerHtml)
+    emailText = emailText.replace('{{list_of_new_offers}}', offerText)
+    sendEmails(subject, fromAddress, emailHtml, emailText, full_member_data)
     

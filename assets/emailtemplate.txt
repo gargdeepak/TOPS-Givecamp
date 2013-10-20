@@ -1,10 +1,17 @@
-Dear {{first_name}},
 
+Here is your timebank connection to the most recent Offers and Requests on our database.  You can click on the title of any Offer or Request to take you to Community Weaver.  After you login, you will be on the detail page for that Offer or Request.  If that one doesn't end up appealing to you, take a look at the other offers that didn't make the most recent list.
 
-New Offers:
+If you are having any problems, go to the bottom of this email for ways to resolve your problems or connect with someone that can assist.
+                    
+
+Recent Offers:
 {{list_of_new_offers}}
 
-New Requests:
+Recent Requests:
 {{list_of_new_requests}}
+
+We want you to be satisfied with our system, and we appreciate your comments.  Please let us know how we can improve our service to you and other timebank members in the community.  You may send an email to info@tbanks.org or call (206) 818-4606.
+
+If you are not connecting to the timebank website when you click the title of an Offer or Request; first, check your internet connection. If you are still not getting there you may send an email to info@tbanks.org or call (206) 818-4606.
 
 

@@ -7,9 +7,7 @@ from email.mime.text import MIMEText
 
 
 def sendEmails(subject, fromAddress, emailHtml, emailText, member_data):
-    msg = MIMEMultipart('alternative')
-    msg['Subject'] = subject
-    msg['From']    = fromAddress 
+
     member_info = member_data.values()
     
     username = 'givecamp2013@tbanks.org'
@@ -18,6 +16,9 @@ def sendEmails(subject, fromAddress, emailHtml, emailText, member_data):
     s.login(username, password)
     
     for member in member_info:
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = subject
+        msg['From']    = fromAddress 
         text = emailText.replace('{{first_name}}', member['first'])
         html = emailHtml.replace('{{first_name}}', member['first'])
         part1 = MIMEText(text, 'plain')
@@ -25,7 +26,10 @@ def sendEmails(subject, fromAddress, emailHtml, emailText, member_data):
         msg.attach(part1)
         msg.attach(part2)
         msg['To'] = member['email']
-        #print msg['From'], msg['To'], msg.as_string()
+        print member['email'], member['first']
+        #print part2, msg
+        testAddress = 'givecamp2013@tbanks.org'
+        print msg['From'], msg['To'], msg.as_string()
         #print ''
         s.sendmail(msg['From'], msg['To'], msg.as_string())
 
