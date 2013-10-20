@@ -12,7 +12,9 @@ from mandrillEmailSender import sendEmails
 
 def get_file_names():
     ''' Gets the names of required csv files '''
-    #print sys.argv[1], sys.argv[2], sys.argv[3]
+    if len(sys.argv) != 4:
+        print "Usage: python process.py <member.csv filename> <community.csv filename> <offers.csv filename>"
+        exit(0)
     return sys.argv[1], sys.argv[2], sys.argv[3]
     member_file = raw_input("Enter name of csv file with member details (with .csv): ")
     comm_file = raw_input("Enter name of csv file with member to community details (with .csv): ")
@@ -127,7 +129,7 @@ if __name__ == '__main__':
     request_ids.sort(reverse=True)
     numOffers = 10 if len(offer_ids) >= 10 else len(offer_ids)
     numRequests = 10 if len(request_ids) >= 10 else len(request_ids)
-    print len(offer_ids), len(request_ids), numOffers, numRequests
+    #print len(offer_ids), len(request_ids), numOffers, numRequests
     for i in range(numOffers):
         offer = offer_ids[i]
         offerTitle = offers[offer]['title']

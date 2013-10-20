@@ -1,4 +1,6 @@
 
+Dear {{name}},
+
 Here is your timebank connection to the most recent Offers and Requests on our database.  You can click on the title of any Offer or Request to take you to Community Weaver.  After you login, you will be on the detail page for that Offer or Request.  If that one doesn't end up appealing to you, take a look at the other offers that didn't make the most recent list.
 
 If you are having any problems, go to the bottom of this email for ways to resolve your problems or connect with someone that can assist.
